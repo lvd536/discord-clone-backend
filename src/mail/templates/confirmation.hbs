@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение аккаунта</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; color: #1f2937;">
+    <table cellpadding="0" cellspacing="0" width="100%" style="background-color: #f9fafb; padding: 40px 10px;">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); overflow: hidden;">
+
+                    <tr>
+                        <td style="padding: 32px 32px 20px 32px; text-align: center; font-size: 24px; font-weight: 700; color: #4f46e5;">
+                            ⚡️ LvdAuth
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 32px 32px 32px;">
+                            <h1 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 0; margin-bottom: 12px;">
+                                Добро пожаловать, {{displayName}}!
+                            </h1>
+                            <p style="font-size: 15px; line-height: 24px; color: #4b5563; margin: 0 0 24px 0;">
+                                Рады видеть вас в нашей команде. Для активации вашего личного кабинета и доступа ко всем возможностям платформы необходимо подтвердить вашу электронную почту.
+                            </p>
+
+                            <table cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding-bottom: 24px;">
+                                        <a href="https://localhost:3000/auth/token/{{token}}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #4f46e5; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);">
+                                            Подтвердить почту
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 13px; line-height: 20px; color: #9ca3af; margin: 0 0 12px 0; text-align: center;">
+                                Ссылка действительна в течение 24 часов.
+                            </p>
+                            <div style="border-top: 1px solid #f3f4f6; padding-top: 16px; font-size: 12px; line-height: 18px; color: #9ca3af;">
+                                Если кнопка не работает, скопируйте эту ссылку в браузер:<br>
+                                <a href="https://localhost:3000/auth/token/{{token}}" style="color: #4f46e5; text-decoration: none; word-break: break-all;">
+                                    https://localhost:3000/auth/token/{{token}}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; text-align: center; padding-top: 24px;">
+                    <tr>
+                        <td style="font-size: 12px; color: #9ca3af; line-height: 18px;">
+                            Вы получили это письмо, потому что зарегистрировались на нашем сайте.<br>
+                            Если вы этого не делали, просто проигнорируйте его.<br>
+                            <span style="display: inline-block; margin-top: 8px;">&copy; 2026 LvdAuth. Все права защищены.</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

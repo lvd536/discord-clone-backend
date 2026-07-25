@@ -1,0 +1,306 @@
+generator client {
+    provider = "prisma-client"
+    output   = "./__generated__"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id String @id @default(cuid())
+
+    email    String  @unique
+    password String?
+
+    displayName String
+    avatarUrl   String?
+
+    role UserRole @default(MEMBER)
+
+    isVerified         Boolean @default(false) @map("is_verified")
+    isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled")
+
+    hashedRefreshToken String? @map("hashed_refresh_token")
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    accounts Account[]
+    tokens   Token[]
+
+    friendships Friendship[] @relation("UserFriendships")
+    friendsOf   Friendship[] @relation("UserFriends")
+
+    ownedServers Server[] @relation("ServerOwner")
+    memberships  Member[]
+
+    ownedGroups    Conversation[]            @relation("GroupOwner")
+    conversations  ConversationParticipant[]
+    directMessages DirectMessage[]
+
+    @@map("users")
+}
+
+model Friendship {
+    id String @id @default(cuid())
+
+    userId String @map("user_id")
+    user   User   @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+
+    friendId String @map("friend_id")
+    friend   User   @relation("UserFriends", fields: [friendId], references: [id], onDelete: Cascade)
+
+    status FriendshipStatus @default(PENDING)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@unique([userId, friendId])
+    @@map("friendships")
+}
+
+model Token {
+    id String @id @default(cuid())
+
+    type  TokenType
+    token String
+
+    expiresIn DateTime @map("expires_in")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    user   User?   @relation(fields: [userId], references: [id])
+    userId String? @map("user_id")
+
+    @@unique([token, type])
+    @@map("tokens")
+}
+
+model Account {
+    id String @id @default(cuid())
+
+    type              String
+    provider          String
+    providerAccountId String @map("provider_account_id")
+
+    refreshToken String? @map("refresh_token")
+    accessToken  String? @map("access_token")
+    expiresAt    Int?    @map("expires_at")
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    user   User?   @relation(fields: [userId], references: [id])
+    userId String? @map("user_id")
+
+    @@unique([provider, providerAccountId])
+    @@map("accounts")
+}
+
+model Server {
+    id         String  @id @default(cuid())
+    name       String
+    imageUrl   String? @map("image_url")
+    inviteCode String  @unique @map("invite_code")
+
+    ownerId String @map("owner_id")
+    owner   User   @relation("ServerOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    members  Member[]
+    channels Channel[]
+    roles    Role[]
+
+    @@map("servers")
+}
+
+model Member {
+    id String @id @default(cuid())
+
+    userId String @map("user_id")
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    serverId String @map("server_id")
+    server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+    roles Role[]
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    messages Message[]
+
+    @@unique([userId, serverId])
+    @@map("members")
+}
+
+model Channel {
+    id   String      @id @default(cuid())
+    name String
+    type ChannelType @default(TEXT)
+
+    serverId String @map("server_id")
+    server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    messages Message[]
+
+    @@map("channels")
+}
+
+model Message {
+    id      String @id @default(cuid())
+    content String @db.Text
+
+    channel   Channel @relation(fields: [channelId], references: [id])
+    channelId String
+
+    member   Member @relation(fields: [memberId], references: [id])
+    memberId String
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("messages")
+}
+
+model Conversation {
+    id   String           @id @default(cuid())
+    type ConversationType @default(DIRECT)
+
+    name     String?
+    imageUrl String? @map("image_url")
+
+    ownerId String? @map("owner_id")
+    owner   User?   @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    participants ConversationParticipant[]
+    messages     DirectMessage[]
+
+    @@map("conversations")
+}
+
+model ConversationParticipant {
+    id String @id @default(cuid())
+
+    conversationId String       @map("conversation_id")
+    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+    userId String @map("user_id")
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    lastReadAt DateTime @default(now()) @map("last_read_at")
+
+    createdAt DateTime @default(now()) @map("created_at")
+
+    @@unique([conversationId, userId])
+    @@map("conversation_participants")
+}
+
+model DirectMessage {
+    id      String  @id @default(cuid())
+    content String  @db.Text
+    fileUrl String? @map("file_url")
+
+    conversationId String       @map("conversation_id")
+    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+    senderId String @map("sender_id")
+    sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("direct_messages")
+}
+
+model Role {
+    id String @id @default(cuid())
+
+    name  String @default("new role")
+    color String @default("#fff")
+
+    permissions RolePermissions[]
+
+    serverId String @map("server_id")
+    server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    members Member[]
+
+    @@map("roles")
+}
+
+enum UserRole {
+    MEMBER
+    MODERATOR
+    ADMIN
+    OWNER
+}
+
+enum AuthMethod {
+    CREDENTIALS
+    GOOGLE
+    YANDEX
+    OAUTH
+}
+
+enum ChannelType {
+    TEXT
+    VOICE
+}
+
+enum MemberRole {
+    OWNER
+    ADMIN
+    MODERATOR
+    MEMBER
+}
+
+enum TokenType {
+    VERIFICATION
+    OAUTH
+    TWOFACTOR
+}
+
+enum ConversationType {
+    DIRECT
+    GROUP
+}
+
+enum FriendshipStatus {
+    PENDING
+    ACCEPTED
+    BLOCKED
+}
+
+enum RolePermissions {
+    CAN_EDIT_CHANNEL
+    CAN_EDIT_SERVER
+    CAN_EDIT_ROLE
+
+    CAN_GRANT_ROLE
+
+    CAN_CREATE_CHANNEL
+    CAN_CREATE_ROLE
+
+    CAN_INVITE
+    CAN_BAN
+    CAN_KICK
+    CAN_MUTE
+
+    CAN_DELETE_CHANNEL
+    CAN_DELETE_SERVER
+    CAN_DELETE_MESSAGE
+    CAN_DELETE_ROLE
+    OWNER
+}
