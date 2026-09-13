@@ -1,6 +1,6 @@
 services:
     db:
-        container_name: postgres_auth_db
+        container_name: postgres_discord_db
         image: postgres:15.2
         restart: always
         environment:
