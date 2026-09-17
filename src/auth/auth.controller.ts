@@ -38,16 +38,22 @@ export class AuthController {
 	@ApiOperation({
 		summary: 'Зарегистрировать новую учетную запись пользователя'
 	})
-	async register(@Body() createUserDto: CreateUserDto) {
-		return this.authService.signIn(createUserDto)
+	async register(
+		@Body() createUserDto: CreateUserDto,
+		@Res({ passthrough: true }) res: Response
+	) {
+		return this.authService.signIn(createUserDto, res)
 	}
 
 	@Public()
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
 	@ApiOperation({ summary: 'Авторизоваться по почте и паролю (Credentials)' })
-	async login(@Body() loginUserDto: LoginUserDto) {
-		return this.authService.login(loginUserDto)
+	async login(
+		@Body() loginUserDto: LoginUserDto,
+		@Res({ passthrough: true }) res: Response
+	) {
+		return this.authService.login(loginUserDto, res)
 	}
 
 	@Public()

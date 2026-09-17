@@ -193,7 +193,7 @@ export class AuthService {
 		return { access_token: access_token }
 	}
 
-	async signIn(createUserDto: CreateUserDto) {
+	async signIn(createUserDto: CreateUserDto, res: Response) {
 		const { password, ...user } =
 			await this.usersService.create(createUserDto)
 
@@ -209,13 +209,13 @@ export class AuthService {
 		)
 
 		await this.updateRefreshToken(user.id, tokens.refresh_token)
-
+		this.sendRefreshTokenCookie(res, tokens.refresh_token)
 		await this.mailService.sendVerificationEmail(id, email, displayName)
 
 		return { user, access_token: tokens.access_token }
 	}
 
-	async login(userLoginDto: LoginUserDto) {
+	async login(userLoginDto: LoginUserDto, res: Response) {
 		const user = await this.usersService.findByEmail(userLoginDto.email)
 
 		if (!user) throw new UnauthorizedException()
@@ -238,7 +238,7 @@ export class AuthService {
 				isVerified
 			)
 			await this.updateRefreshToken(id, refresh_token)
-
+			this.sendRefreshTokenCookie(res, refresh_token)
 			return { user: result, access_token: access_token }
 		}
 
