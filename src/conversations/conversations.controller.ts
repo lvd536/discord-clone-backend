@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
-import { CurrentUser } from '@/decorators/current-user.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
 
 import { ConversationsService } from './conversations.service'
 import { EditGroupDto } from './dto/edit-group.dto'

@@ -16,6 +16,7 @@ import { FriendshipsModule } from './friendships/friendships.module'
 import { LivekitModule } from './livekit/livekit.module'
 import { MailModule } from './mail/mail.module'
 import { MessagesModule } from './messages/messages.module'
+import { NotificationsModule } from './notifications/notifications.module'
 import { PresenceModule } from './presence/presence.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { RedisModule } from './redis/redis.module'
@@ -81,7 +82,8 @@ import { UsersModule } from './users/users.module'
 		MessagesModule,
 		ConversationsModule,
 		DirectMessagesModule,
-		FriendshipsModule
+		FriendshipsModule,
+		NotificationsModule
 	],
 	controllers: [],
 	providers: [

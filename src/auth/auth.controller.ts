@@ -13,8 +13,8 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 
-import { CurrentUser } from '@/decorators/current-user.decorator'
-import { Public } from '@/decorators/public.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
+import { Public } from '@/common/decorators/public.decorator'
 import { MailService } from '@/mail/mail.service'
 import { CreateUserDto } from '@/users/dto/create-user.dto'
 import { LoginUserDto } from '@/users/dto/login-user.dto'

@@ -17,8 +17,8 @@ import {
 } from '@nestjs/swagger'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
-import { CurrentUser } from '@/decorators/current-user.decorator'
-import { Public } from '@/decorators/public.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
+import { Public } from '@/common/decorators/public.decorator'
 
 import { JoinChannelDto } from './dto/join-channel.dto'
 import { LivekitChannelGuard } from './guards/livekit-channel.guard'

@@ -17,7 +17,7 @@ import {
 import { FriendshipStatus } from '@prisma/__generated__/enums'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
-import { CurrentUser } from '@/decorators/current-user.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
 
 import { FriendshipsService } from './friendships.service'
 

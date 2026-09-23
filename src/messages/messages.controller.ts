@@ -17,7 +17,7 @@ import {
 } from '@nestjs/swagger'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
-import { CurrentUser } from '@/decorators/current-user.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
 import { ServerPermissionsGuard } from '@/servers/guards/server-permissions.guard'
 
 import { ChannelMessageOwnerGuard } from './guards/channel-message-owner.guard'

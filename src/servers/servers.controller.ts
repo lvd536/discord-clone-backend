@@ -12,7 +12,7 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 import { MemberRole, RolePermissions } from '@prisma/__generated__/enums'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
-import { CurrentUser } from '@/decorators/current-user.decorator'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
 
 import { ServerPermissions } from './decorators/server-permissions.decorator'
 import { CreateServerDto } from './dto/create-server.dto'
