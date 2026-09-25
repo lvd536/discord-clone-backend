@@ -1,7 +1,8 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
+import { CurrentUser } from '@/common/decorators/current-user.decorator'
 
 import { UsersService } from './users.service'
 
@@ -19,6 +20,15 @@ export class UsersController {
 	async getProfile(@Req() req: any) {
 		const userId = req.user.id
 		return this.usersService.findById(userId)
+	}
+
+	@Patch('profile')
+	@ApiOperation({ summary: 'Обновить профиль текущего пользователя' })
+	async updateProfile(
+		@CurrentUser('id') userId: string,
+		@Body() dto: { displayName?: string; email?: string }
+	) {
+		return this.usersService.update(userId, dto)
 	}
 
 	@Get('accounts')

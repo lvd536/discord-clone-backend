@@ -54,10 +54,15 @@ export class UsersService {
 	}
 
 	async update(userId: string, data: UserUpdateInput) {
+		const isEmailChanged = Boolean(data.email)
+
 		const { password: pass, ...user } =
 			await this.prismaService.user.update({
 				where: { id: userId },
-				data
+				data: {
+					...data,
+					...(isEmailChanged && { isVerified: false })
+				}
 			})
 
 		return user
