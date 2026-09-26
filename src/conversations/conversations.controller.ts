@@ -8,6 +8,7 @@ import {
 	Post,
 	UseGuards
 } from '@nestjs/common'
+import { ApiOperation, ApiParam } from '@nestjs/swagger'
 
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard'
 import { CurrentUser } from '@/common/decorators/current-user.decorator'
@@ -37,6 +38,7 @@ export class ConversationsController {
 	}
 
 	@Post('group')
+	@ApiOperation({ summary: 'Создать групповой чат' })
 	async createGroup(
 		@CurrentUser('id') userId: string,
 		@Body('name') name: string,
@@ -50,6 +52,7 @@ export class ConversationsController {
 	}
 
 	@Post(':conversationId/group/leave')
+	@ApiOperation({ summary: 'Покинуть групповой чат' })
 	async leaveFromGroup(
 		@CurrentUser('id') userId: string,
 		@Param('conversationId') conversationId: string
@@ -61,19 +64,24 @@ export class ConversationsController {
 	}
 
 	@Patch(':conversationId/group')
+	@ApiOperation({ summary: 'Редактировать групповой чат' })
+	@ApiParam({ name: 'conversationId', description: 'ID беседы' })
 	async editGroup(
-		@CurrentUser('id') userId: string,
-		@Body() dto: EditGroupDto,
-		@Param('conversationId') conversationId: string
+		@Param('conversationId') conversationId: string,
+		@Body()
+		dto: { name?: string; friendIds?: string[]; participantIds?: string[] },
+		@CurrentUser('id') userId: string
 	) {
 		return this.conversationsService.editGroupConversation(
-			userId,
 			conversationId,
-			dto
+			dto,
+			userId
 		)
 	}
 
 	@Delete(':conversationId')
+	@ApiOperation({ summary: 'Удалить групповой чат' })
+	@ApiParam({ name: 'conversationId', description: 'ID беседы' })
 	async deleteConversation(
 		@CurrentUser('id') userId: string,
 		@Param('conversationId') conversationId: string

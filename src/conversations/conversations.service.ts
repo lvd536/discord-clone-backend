@@ -145,53 +145,84 @@ export class ConversationsService {
 	}
 
 	async editGroupConversation(
-		userId: string,
 		conversationId: string,
-		dto: EditGroupDto
+		dto: { name?: string; friendIds?: string[]; participantIds?: string[] },
+		userId: string
 	) {
-		if (dto.participiantIds.length < 1) {
+		const conversation = await this.prismaService.conversation.findUnique({
+			where: { id: conversationId },
+			include: { participants: true }
+		})
+
+		if (!conversation) {
+			throw new NotFoundException('Беседа не найдена')
+		}
+
+		if (conversation.type !== ConversationType.GROUP) {
 			throw new BadRequestException(
-				'Групповой чат должен содержать хотя бы одного друга'
+				'Редактировать можно только групповые чаты'
 			)
 		}
 
-		const existingConversation =
-			await this.prismaService.conversation.findUnique({
-				where: { id: conversationId },
-				select: {
-					type: true,
-					ownerId: true,
-					participants: {
-						where: { userId }
-					}
-				}
-			})
-
-		if (!existingConversation || existingConversation.type !== 'GROUP') {
-			throw new NotFoundException('Указанный групповой чат не найден')
-		}
-
-		if (existingConversation.ownerId !== userId) {
+		if (conversation.ownerId && conversation.ownerId !== userId) {
 			throw new ForbiddenException(
-				'Вы не являетесь создателем этого чата'
+				'Только создатель группы может изменять её настройки'
 			)
 		}
 
-		const uniqueUserIds = Array.from(
-			new Set([userId, ...dto.participiantIds])
-		)
+		const newName = dto.name?.trim() || conversation.name
 
-		const participantData = uniqueUserIds.map(id => ({ userId: id }))
+		const rawIds = dto.participantIds || dto.friendIds
+
+		if (rawIds && Array.isArray(rawIds)) {
+			const uniqueParticipantIds = Array.from(
+				new Set([conversation.ownerId || userId, ...rawIds])
+			)
+
+			return this.prismaService.$transaction(async tx => {
+				await tx.conversationParticipant.deleteMany({
+					where: {
+						conversationId,
+						userId: { not: conversation.ownerId || userId }
+					}
+				})
+
+				const newParticipantsData = uniqueParticipantIds
+					.filter(id => id !== (conversation.ownerId || userId))
+					.map(id => ({
+						conversationId,
+						userId: id
+					}))
+
+				if (newParticipantsData.length > 0) {
+					await tx.conversationParticipant.createMany({
+						data: newParticipantsData
+					})
+				}
+
+				return tx.conversation.update({
+					where: { id: conversationId },
+					data: { name: newName },
+					include: {
+						participants: {
+							include: {
+								user: {
+									select: {
+										id: true,
+										displayName: true,
+										avatarUrl: true
+									}
+								}
+							}
+						}
+					}
+				})
+			})
+		}
 
 		return this.prismaService.conversation.update({
 			where: { id: conversationId },
-			data: {
-				name: dto.name,
-				participants: {
-					deleteMany: {},
-					create: participantData
-				}
-			},
+			data: { name: newName },
 			include: {
 				participants: {
 					include: {
