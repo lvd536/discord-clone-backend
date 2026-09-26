@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 
 import { PrismaService } from '@/prisma/prisma.service'
 
@@ -26,7 +30,23 @@ export class ChannelsService {
 	}
 
 	async removeChannel(channelId: string) {
-		return this.prismaService.channel.delete({ where: { id: channelId } })
+		const channel = await this.prismaService.channel.findUnique({
+			where: { id: channelId }
+		})
+
+		if (!channel) {
+			throw new NotFoundException('Канал не найден')
+		}
+
+		if (channel.name === 'general') {
+			throw new BadRequestException(
+				'Нельзя удалить основной канал general'
+			)
+		}
+
+		return this.prismaService.channel.delete({
+			where: { id: channelId }
+		})
 	}
 
 	async channel(channelId: string) {
