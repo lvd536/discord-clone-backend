@@ -95,6 +95,40 @@ export class ServersService {
 		})
 	}
 
+	async leaveServer(serverId: string, userId: string) {
+		const server = await this.prismaService.server.findUnique({
+			where: { id: serverId },
+			select: { ownerId: true }
+		})
+
+		if (!server) {
+			throw new NotFoundException('Сервер не найден')
+		}
+
+		if (server.ownerId === userId) {
+			throw new ForbiddenException(
+				'Владелец не может покинуть сервер. Передайте права или удалите сервер.'
+			)
+		}
+
+		const member = await this.prismaService.member.findUnique({
+			where: {
+				userId_serverId: {
+					serverId,
+					userId
+				}
+			}
+		})
+
+		if (!member) {
+			throw new NotFoundException('Вы не состоите на этом сервере')
+		}
+
+		return this.prismaService.member.delete({
+			where: { id: member.id }
+		})
+	}
+
 	async updateServer(dto: UpdateServerDto, serverId: string) {
 		return this.prismaService.server.update({
 			where: { id: serverId },

@@ -82,6 +82,16 @@ export class ServersController {
 		return this.serversService.joinServer(inviteCode, userId)
 	}
 
+	@Post(':serverId/leave')
+	@ApiOperation({ summary: 'Покинуть сервер (Для обычных участников)' })
+	@ApiParam({ name: 'serverId', description: 'ID сервера' })
+	async leave(
+		@Param('serverId') serverId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.serversService.leaveServer(serverId, userId)
+	}
+
 	@Patch(':serverId')
 	@UseGuards(ServerPermissionsGuard)
 	@ServerPermissions(RolePermissions.OWNER, RolePermissions.CAN_EDIT_SERVER)
